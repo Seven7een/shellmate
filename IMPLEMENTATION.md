@@ -59,44 +59,60 @@ ShellMate consists of three main components:
 - Includes safety flags when appropriate
 - Handles ambiguous requests with common interpretations
 
-## 💻 Local Implementations
+## 💻 Local Installation & Management
 
-### Python Version (`src/shellmate.py`)
+### Installation Architecture
 
-**Features:**
-- Full JSON parsing with `json` module
-- Robust HTTP handling with `urllib3`
-- Comprehensive error handling
-- Rich command-line interface with `argparse`
-- Configuration file support
+**shellmate-installer.sh** (Main Management Script):
+- Handles AWS deployment/destruction via SAM CLI
+- Manages system status, logs, API keys
+- Calls `install.py` for local installation tasks
+- Unified entry point for all ShellMate operations
 
-**Dependencies:**
-- Python 3.9+
-- `urllib3` (HTTP requests)
-- `json` (built-in)
+**install.py** (Local Installation Specialist):
+- Handles Python/Bash/Both version selection
+- Auto-detects existing AWS deployments 
+- Sets up configuration files and shell integration
+- Manages multiple binary installations (shellmate-py, shellmate-sh)
 
-### Bash Version (`src/shellmate.sh`)
+### Available Implementations
 
-**Features:**
-- Pure bash implementation (no external dependencies except `curl`)
-- Basic JSON parsing without `jq` (fallback included)
-- Minimal but functional
-- Works on any system with bash + curl
+**Python Version (`src/shellmate.py`):**
+- Full JSON parsing and robust HTTP handling
+- Rich command-line interface with comprehensive error handling
+- Installed as `/usr/local/bin/shellmate-py`
+- Requires Python 3.9+
 
-**Dependencies:**
-- Bash 4.0+
-- `curl` (HTTP requests)
-- `jq` (optional, for better JSON parsing)
+**Bash Version (`src/shellmate.sh`):**
+- Pure bash implementation with minimal dependencies
+- Basic JSON parsing with curl-only HTTP requests
+- Installed as `/usr/local/bin/shellmate-sh` 
+- Requires Bash 4.0+ and curl
+
+### Installation Options
+
+**Choice 1: Python Version Only**
+- Best experience with full feature set
+- Requires Python 3.9+ installation
+
+**Choice 2: Bash Version Only** 
+- Maximum compatibility, minimal dependencies
+- Works on any Linux system with bash + curl
+
+**Choice 3: Both Versions**
+- Install both implementations
+- Last installed version becomes default symlink
+- Can use either version explicitly (shellmate-py, shellmate-sh)
 
 ## 🔗 Shell Integration
 
-### Shell Function Template (`shell-function-template.sh`)
+The `install.py` script automatically sets up shell integration using a template from `shell-function-template.sh`:
 
 **Key Features:**
 - **Auto-detection**: Detects ZSH vs Bash vs other shells
-- **Pre-population**: Uses `print -z` (ZSH) or `read -e -i` (Bash)
-- **Error Handling**: Graceful fallback and user-friendly error messages
-- **Debug Control**: `SHELLMATE_DEBUG=1` for troubleshooting
+- **Pre-population**: Uses `print -z` (ZSH) or `read -e -i` (Bash)  
+- **Fallback Logic**: Tries available binaries in order
+- **Error Handling**: Graceful degradation and user-friendly errors
 
 **ZSH Integration:**
 ```bash
@@ -109,12 +125,6 @@ read -e -i "$result" cmd  # Pre-populates readline buffer
 eval "$cmd"               # Executes user-confirmed command
 ```
 
-**Debug Mode:**
-```bash
-export SHELLMATE_DEBUG=1  # Enable debug output
-unset SHELLMATE_DEBUG     # Disable debug output
-```
-
 ## 📁 Directory Structure
 
 ```
@@ -125,15 +135,12 @@ shellmate/
 ├── shellmate-installer.sh       # Main Unified management script
 ├── install.py                   # Local binary installer
 ├── shell-function-template.sh   # Shared shell integration template
-├── debug-shell-issue.sh         # Debug script for shell function issues
 ├── src/
 │   ├── shellmate.py             # Python implementation
 │   └── shellmate.sh             # Bash implementation (no colors)
 ├── aws/
 │   ├── template.yaml            # CloudFormation template
 │   └── lambda_function.py       # AWS Lambda handler
-└── python-build/                # Build output directory
-    └── shellmate                # Compiled Python binary
 ```
 
 ## 🔐 Security & Configuration
@@ -162,21 +169,7 @@ shellmate/
 - Different strategies for different error types
 - Detailed logging for troubleshooting
 
-## 🧪 Testing & Debugging
-
-### Debug Tools
-
-**Debug Script (`debug-shell-issue.sh`):**
-- Tests Python version directly
-- Tests shell function with debug output
-- Compares results to identify issues
-- Checks for ANSI escape sequences
-
-**Debug Control:**
-```bash
-export SHELLMATE_DEBUG=1    # Enable debug mode
-./debug-shell-issue.sh "test query"
-```
+## 🧪 Testing
 
 **Management Commands:**
 ```bash
@@ -186,11 +179,6 @@ export SHELLMATE_DEBUG=1    # Enable debug mode
 ```
 
 ### Common Issues & Solutions
-
-**Shell Function Issues:**
-- **Cause**: Complex shell integration, terminal settings
-- **Fix**: Simplified error handling, better debug output
-- **Debug**: Use `debug-shell-issue.sh` script
 
 **API Connectivity:**
 - **Cause**: Wrong endpoint, API key, or AWS configuration
@@ -241,7 +229,7 @@ export SHELLMATE_DEBUG=1    # Enable debug mode
 - **Total**: ~$5-15/month for typical usage
 
 ### Optimization
-- **Model**: Claude 3.5 Sonnet v1 (stable, cost-effective)
+- **Model**: Claude  (stable, cost-effective)
 - **Tokens**: Limited to 200 max tokens (sufficient for commands)
 - **Caching**: API Gateway caching disabled (commands are unique)
 - **Retry**: Intelligent backoff prevents unnecessary calls

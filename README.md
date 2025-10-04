@@ -18,7 +18,7 @@ The system prompt has been tuned to generate simple, intuitive shell commands th
 
 ## Prerequisites
 
-- **AWS Account** with Bedrock access (enable Claude 3.5 Sonnet model)
+- **AWS Account** with Bedrock access (enable Claude 3 Haiku model with default settings)
 - **AWS CLI** + **SAM CLI** installed and configured (https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
 - **Python 3.9+** OR **Bash + curl**
 

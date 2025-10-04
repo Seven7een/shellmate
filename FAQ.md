@@ -15,19 +15,17 @@ shellmate "test query"                       # Test end-to-end
 
 ### Q: Which version should I choose?
 - **Python version**: Choose if you have Python 3.9+ and want the best experience
-- **Bash version**: Choose for maximum compatibility or minimal dependencies
-- **Both**: Install both to have options (symlink points to your preferred version)
+- **Bash version**: Choose for maximum compatibility or minimal dependencies  
+- **Both**: Install both versions and use whichever is preferred (last installed becomes default)
 
-### Q: How do I switch between Python and Bash versions?
+### Q: How do I use different versions?
 ```bash
 # If you installed both, you can use either:
 shellmate-py "query"               # Use Python version directly
 shellmate-sh "query"               # Use Bash version directly
-shellmate "query"                  # Uses whichever version the symlink points to
+shellmate "query"                  # Uses whichever version is symlinked as default
 
-# To change the default:
-sudo ln -sf /usr/local/bin/shellmate-py /usr/local/bin/shellmate   # Make Python default
-sudo ln -sf /usr/local/bin/shellmate-sh /usr/local/bin/shellmate   # Make Bash default
+# The install script automatically creates the symlink to the last version installed
 ```
 
 ### Q: How do I install on a new machine (AWS already exists)?
