@@ -157,11 +157,6 @@ EOF
 check_prerequisites() {
     local missing=()
     
-    # Check Python
-    if ! command -v python3 >/dev/null 2>&1; then
-        missing+=("python3")
-    fi
-    
     # Check AWS CLI for deployment commands
     if [[ "$1" =~ ^(deploy|redeploy|destroy|status|logs|switch-model|enable-profiles|disable-profiles|api-key)$ ]]; then
         if ! command -v aws >/dev/null 2>&1; then
@@ -209,11 +204,16 @@ install_config() {
     if [ ! -w "$INSTALL_DIR" ]; then
         sudo cp "$SCRIPT_DIR/src/shellmate.sh" "$INSTALL_DIR/shellmate-sh"
         sudo chmod +x "$INSTALL_DIR/shellmate-sh"
+        # Create symlink for easy access
+        sudo ln -sf "$INSTALL_DIR/shellmate-sh" "$INSTALL_DIR/shellmate"
     else
         cp "$SCRIPT_DIR/src/shellmate.sh" "$INSTALL_DIR/shellmate-sh"
         chmod +x "$INSTALL_DIR/shellmate-sh"
+        # Create symlink for easy access
+        ln -sf "$INSTALL_DIR/shellmate-sh" "$INSTALL_DIR/shellmate"
     fi
     print_success "Installed shellmate-sh to $INSTALL_DIR"
+    print_success "Created symlink: shellmate -> shellmate-sh"
     
     # Setup configuration and shell integration
     setup_config
@@ -340,7 +340,9 @@ setup_shell_integration() {
 uninstall_config() {
     print_header "UNINSTALLING SHELLMATE"
     
-    # Remove installed binary
+    # Remove installed binary and symlink
+    local removed=false
+    
     if [ -f "$INSTALL_DIR/shellmate-sh" ]; then
         if [ ! -w "$INSTALL_DIR" ]; then
             sudo rm "$INSTALL_DIR/shellmate-sh"
@@ -348,8 +350,21 @@ uninstall_config() {
             rm "$INSTALL_DIR/shellmate-sh"
         fi
         print_success "Removed shellmate-sh from $INSTALL_DIR"
-    else
-        print_info "No shellmate-sh binary found in $INSTALL_DIR"
+        removed=true
+    fi
+    
+    if [ -L "$INSTALL_DIR/shellmate" ] || [ -f "$INSTALL_DIR/shellmate" ]; then
+        if [ ! -w "$INSTALL_DIR" ]; then
+            sudo rm -f "$INSTALL_DIR/shellmate"
+        else
+            rm -f "$INSTALL_DIR/shellmate"
+        fi
+        print_success "Removed shellmate symlink from $INSTALL_DIR"
+        removed=true
+    fi
+    
+    if [ "$removed" = false ]; then
+        print_info "No shellmate binaries found in $INSTALL_DIR"
     fi
     
     # Remove configuration
@@ -374,7 +389,6 @@ uninstall_config() {
         print_info "Please edit your shell config files and remove these lines:"
         echo "  1. The line: # ShellMate configuration"
         echo "  2. The line: source ~/.config/shellmate/config"
-        echo "  3. The entire shellmate() function (multi-line block)"
         echo
         print_info "After editing, restart your shell: exec \$SHELL"
     fi
@@ -734,10 +748,6 @@ clean_artifacts() {
         rm -rf "$AWS_DIR/.aws-sam"
         print_success "Removed SAM build artifacts"
     fi
-    
-    # Python cache
-    find "$SCRIPT_DIR" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-    find "$SCRIPT_DIR" -name "*.pyc" -delete 2>/dev/null || true
     
     print_success "Cleanup completed"
 }

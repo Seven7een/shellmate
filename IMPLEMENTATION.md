@@ -5,13 +5,13 @@
 ShellMate consists of three main components:
 
 1. **AWS Infrastructure** (CloudFormation + Lambda + API Gateway)
-2. **Local Binary** (Python or Bash implementation)
+2. **Local Bash Implementation** (shellmate-sh)
 3. **Shell Integration** (Seamless shell function)
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Shell Query   │───▶│   Local Binary   │───▶│  AWS Lambda    │
-│ "list py files" │    │ (Python or Bash) │    │ (Claude 3 Haiku)│
+│   Shell Query   │───▶│ shellmate-sh     │───▶│  AWS Lambda     │
+│ "list py files" │    │ (Bash script)    │    │ (Claude 3 Haiku)│
 └─────────────────┘    └──────────────────┘    └─────────────────┘
                                 │                        │
                                 ▼                        ▼
@@ -63,50 +63,31 @@ ShellMate consists of three main components:
 
 ### Installation Architecture
 
-**shellmate-installer.sh** (Main Management Script):
+**shellmate-installer.sh** (Management Script):
 - Handles AWS deployment/destruction via SAM CLI
 - Manages system status, logs, API keys
-- Calls `install.py` for local installation tasks
+- Installs shellmate-sh to /usr/local/bin
+- Sets up configuration files and shell integration
 - Unified entry point for all ShellMate operations
 
-**install.py** (Local Installation Specialist):
-- Handles Python/Bash/Both version selection
-- Auto-detects existing AWS deployments 
-- Sets up configuration files and shell integration
-- Manages multiple binary installations (shellmate-py, shellmate-sh)
+### Bash Implementation
 
-### Available Implementations
-
-**Python Version (`src/shellmate.py`):**
-- Full JSON parsing and robust HTTP handling
-- Rich command-line interface with comprehensive error handling
-- Installed as `/usr/local/bin/shellmate-py`
-- Requires Python 3.9+
-
-**Bash Version (`src/shellmate.sh`):**
+**Bash Implementation (`src/shellmate.sh`):**
 - Pure bash implementation with minimal dependencies
 - Basic JSON parsing with curl-only HTTP requests
 - Installed as `/usr/local/bin/shellmate-sh` 
 - Requires Bash 4.0+ and curl
 
-### Installation Options
+### Installation Process
 
-**Choice 1: Python Version Only**
-- Best experience with full feature set
-- Requires Python 3.9+ installation
-
-**Choice 2: Bash Version Only** 
-- Maximum compatibility, minimal dependencies
-- Works on any Linux system with bash + curl
-
-**Choice 3: Both Versions**
-- Install both implementations
-- Last installed version becomes default symlink
-- Can use either version explicitly (shellmate-py, shellmate-sh)
+**Standard Installation**
+- Maximum compatibility with minimal dependencies
+- Works on any Linux/macOS system with bash + curl
+- Simple deployment and configuration
 
 ## 🔗 Shell Integration
 
-The `install.py` script automatically sets up shell integration using a template from `shell-function-template.sh`:
+The `shellmate-installer.sh` script sets up shell integration:
 
 **Key Features:**
 - **Auto-detection**: Detects ZSH vs Bash vs other shells
@@ -132,12 +113,10 @@ shellmate/
 ├── README.md                    # Barebones user guide
 ├── FAQ.md                       # Troubleshooting & detailed usage
 ├── IMPLEMENTATION.md            # This file - technical details
-├── shellmate-installer.sh       # Main Unified management script
-├── install.py                   # Local binary installer
-├── shell-function-template.sh   # Shared shell integration template
+├── shellmate-installer.sh       # Main unified management script
+├── shell-function-template.sh   # Shell integration template reference
 ├── src/
-│   ├── shellmate.py             # Python implementation
-│   └── shellmate.sh             # Bash implementation (no colors)
+│   └── shellmate.sh             # Bash implementation
 ├── aws/
 │   ├── template.yaml            # CloudFormation template
 │   └── lambda_function.py       # AWS Lambda handler
@@ -203,16 +182,11 @@ shellmate/
 ./shellmate-installer.sh install   # Auto-detects existing AWS
 ```
 
-### Different Versions per Machine
+### Multiple Machine Deployment
 ```bash
-# Server 1: Python version (full features)
-./shellmate-installer.sh install   # Choose Python
-
-# Server 2: Bash version (minimal deps)
-./shellmate-installer.sh install   # Choose Bash
-
-# Dev machine: Both versions
-./shellmate-installer.sh install   # Choose Both
+# Deploy once, install everywhere:
+./shellmate-installer.sh deploy    # On first machine only
+./shellmate-installer.sh install   # On all machines
 ```
 
 ## 📊 Performance & Costs

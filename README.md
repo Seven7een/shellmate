@@ -20,7 +20,7 @@ The system prompt has been tuned to generate simple, intuitive shell commands th
 
 - **AWS Account** with Bedrock access (enable Claude 3 Haiku model with default settings)
 - **AWS CLI** + **SAM CLI** installed and configured (https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-- **Python 3.9+** OR **Bash + curl**
+- **Bash + curl** installed
 
 ## Install
 
@@ -28,7 +28,7 @@ The system prompt has been tuned to generate simple, intuitive shell commands th
 # 1. Deploy AWS infrastructure
 ./shellmate-installer.sh deploy
 
-# 2. Install locally (choose Python or Bash version)
+# 2. Install locally
 ./shellmate-installer.sh install
 ```
 

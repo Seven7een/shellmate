@@ -13,19 +13,15 @@
 shellmate "test query"                       # Test end-to-end
 ```
 
-### Q: Which version should I choose?
-- **Python version**: Choose if you have Python 3.9+ and want the best experience
-- **Bash version**: Choose for maximum compatibility or minimal dependencies  
-- **Both**: Install both versions and use whichever is preferred (last installed becomes default)
+### Q: Installation options
+- **Standard installation**: Simple setup with bash implementation
+- **Custom installation**: Manual configuration options available
 
-### Q: How do I use different versions?
+### Q: How do I use ShellMate?
 ```bash
-# If you installed both, you can use either:
-shellmate-py "query"               # Use Python version directly
-shellmate-sh "query"               # Use Bash version directly
-shellmate "query"                  # Uses whichever version is symlinked as default
-
-# The install script automatically creates the symlink to the last version installed
+# Basic usage:
+shellmate "query"                  # Use ShellMate to generate a command
+shellmate-sh "query"               # Direct access to bash implementation
 ```
 
 ### Q: How do I install on a new machine (AWS already exists)?
@@ -85,25 +81,6 @@ aws configure
 ### Q: "SAM CLI not found" error
 ```bash
 pip install aws-sam-cli
-```
-
-### Q: "Python 3.9 not found" error (Python version)
-Install Python 3.9 manually, then run the installer:
-```bash
-# Ubuntu/Debian: 
-sudo apt install python3.9 python3.9-pip
-
-# CentOS/RHEL: 
-sudo yum install python39 python39-pip
-
-# Fedora:
-sudo dnf install python3.9 python3.9-pip
-
-# macOS: 
-brew install python@3.9
-
-# Then run installer:
-./shellmate-installer.sh install   # Choose Python version
 ```
 
 ### Q: "curl not found" error (Bash version)
@@ -172,16 +149,10 @@ curl -X POST "YOUR_API_ENDPOINT" \
   -d '{"query":"test"}'             # Replace with actual endpoint/key
 ```
 
-**Step 4: Test specific version**
+**Step 4: Test the implementation**
 ```bash
-# Test Python version directly
-shellmate-py --seamless "test query"
-
 # Test Bash version directly  
 shellmate-sh --seamless "test query"
-
-# Check which version is default
-ls -la /usr/local/bin/shellmate    # Shows which version the symlink points to
 ```
 
 **Step 5: Check AWS infrastructure**
@@ -230,8 +201,8 @@ Check your AWS billing dashboard. Typical usage is under $5/month.
 ### Q: How do I update ShellMate?
 ```bash
 git pull                           # Get updates
-./shellmate-installer.sh deploy              # Update AWS infrastructure
-./shellmate-installer.sh install             # Update local installation
+./shellmate-installer.sh deploy    # Update AWS infrastructure
+./shellmate-installer.sh install   # Update local installation
 ```
 
 ### Q: How do I check system status?
@@ -256,18 +227,13 @@ git clone <repo> && cd shellmate
 ./shellmate-installer.sh install             # Auto-detects existing AWS deployment
 ```
 
-### Q: Can I use different versions on different machines?
-Absolutely! Each machine can choose Python or Bash version independently:
+### Q: Can I install ShellMate on multiple machines?
+Absolutely! Install it on as many machines as you need:
 
 ```bash
-# Server 1: Use Python version (full features)
-./shellmate-installer.sh install             # Choose Python
-
-# Server 2: Use Bash version (minimal dependencies)  
-./shellmate-installer.sh install             # Choose Bash
-
-# Development machine: Use both
-./shellmate-installer.sh install             # Choose Both
+# All machines can use the same AWS infrastructure
+# Just run the installer on each machine:
+./shellmate-installer.sh install
 ```
 
 ## 📋 Usage Examples
@@ -310,7 +276,6 @@ If the uninstaller leaves remnants in your shell config, manually remove these l
 
 1. The line: `# ShellMate configuration`
 2. The line: `source ~/.config/shellmate/config`
-3. The entire `shellmate()` function (multi-line block)
 4. The entire `_shellmate_debug_result()` function (if present)
 5. The entire `_shellmate_handle_error()` function (if present)
 6. Any other lines containing 'shellmate' or 'ShellMate'
